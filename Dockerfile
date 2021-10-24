@@ -9,6 +9,7 @@ RUN apt-get update \
     python3.8 \
     python3.8-dev \
     python3.8-distutils \
+    build-essential \
     virtualenv \
     python3-eccodes \
     libproj-dev \
