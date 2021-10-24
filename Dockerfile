@@ -56,10 +56,11 @@ RUN ESMFMKFILE="$(find $ESMF_INSTALL_PREFIX -name '*esmf.mk')" \
 # These python libraries are used by Databricks notebooks and the Python REPL
 # You do not need to install pyspark - it is injected when the cluster is launched
 # Versions are intended to reflect DBR 9.0
-RUN /databricks/python3/bin/pip install \
+RUN /databricks/python3/bin/pip install --upgrade \
   six==1.15.0 \
   # downgrade ipython to maintain backwards compatibility with 7.x and 8.x runtimes
   ipython==7.4.0 \
+  numpy \
   pandas \
   pyarrow \
   matplotlib \
@@ -77,7 +78,7 @@ RUN /databricks/python3/bin/pip install \
   geopandas \
   scipy \
   git+https://github.com/pangeo-data/xesmf.git
-
+  
 # Specifies where Spark will look for the python process
 ENV PYSPARK_PYTHON=/databricks/python3/bin/python3
 
