@@ -79,6 +79,7 @@ RUN ESMFMKFILE="$(find $ESMF_INSTALL_PREFIX -name '*esmf.mk')" \
   pangeo-forge-recipes \
   geopandas \
   scipy \
+  && /databricks/python3/bin/pip install --no-dependencies \
   pangeo-xesmf
   
 # Specifies where Spark will look for the python process
