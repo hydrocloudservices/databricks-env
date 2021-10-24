@@ -7,7 +7,8 @@ ARG NETCDF_PREFIX=/usr
 RUN apt-get update \
   && apt-get install -y \
     python3.8 \
-    python3-dev \
+    python3.8-dev \
+    python3.8-distutils \
     virtualenv \
     python3-eccodes \
     libproj-dev \
