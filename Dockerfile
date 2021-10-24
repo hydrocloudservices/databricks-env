@@ -80,6 +80,9 @@ RUN ESMFMKFILE="$(find $ESMF_INSTALL_PREFIX -name '*esmf.mk')" \
   geopandas \
   scipy \
   xclim \
+  s3fs \
+  gcsfs \
+  fsspec \
   && /databricks/python3/bin/pip install --no-dependencies \
   pangeo-xesmf
   
