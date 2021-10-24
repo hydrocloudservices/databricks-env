@@ -43,7 +43,10 @@ RUN make 2>&1 | tee esmf-make.out
 #RUN make check 2>&1 | tee esmf-make-check.out
 RUN make install 2>&1 | tee esmf-make-install.out
 
-# build ESMPy
+# build ESMPy and install all required python librairies
+# These python libraries are used by Databricks notebooks and the Python REPL
+# You do not need to install pyspark - it is injected when the cluster is launched
+# Versions are intended to reflect DBR 9.0
 WORKDIR $ESMF_DIR/src/addon/ESMPy
 ENV VIRTUAL_ENV=/databricks/python3
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
@@ -53,12 +56,8 @@ RUN ESMFMKFILE="$(find $ESMF_INSTALL_PREFIX -name '*esmf.mk')" \
     && /databricks/python3/bin/python3 setup.py build --ESMFMKFILE=${ESMFMKFILE} \
     && /databricks/python3/bin/python3 setup.py test \
     && /databricks/python3/bin/python3 setup.py install \
-    && /databricks/python3/bin/python3 -c "import ESMF; print(ESMF.__file__, ESMF.__version__)"
-
-# These python libraries are used by Databricks notebooks and the Python REPL
-# You do not need to install pyspark - it is injected when the cluster is launched
-# Versions are intended to reflect DBR 9.0
-RUN /databricks/python3/bin/pip install --ignore-installed \
+    && /databricks/python3/bin/python3 -c "import ESMF; print(ESMF.__file__, ESMF.__version__)" \
+    && /databricks/python3/bin/pip install --ignore-installed \
   six==1.15.0 \
   # downgrade ipython to maintain backwards compatibility with 7.x and 8.x runtimes
   ipython==7.4.0 \
