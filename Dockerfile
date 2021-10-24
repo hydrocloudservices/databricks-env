@@ -1,15 +1,55 @@
 FROM databricksruntime/minimal:9.x
 
+ARG ESMF_TAG="ESMF_8_0_0_beta_snapshot_40"
+ARG NETCDF_PREFIX=/usr
+
 # Installs python 3.8 and virtualenv for Spark and Notebooks
 RUN apt-get update \
   && apt-get install -y \
     python3.8 \
     virtualenv \
+    python3-eccodes \
+    libproj-dev \
+    proj-data \
+    proj-bin \
+    libgeos-dev \
+    git vim wget bc gcc gfortran g++ mpich \
+    libnetcdf-dev libnetcdff-dev netcdf-bin \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Initialize the default environment that Spark and notebooks will use
 RUN virtualenv -p python3.8 --system-site-packages /databricks/python3
+
+# Get ESMF source code
+WORKDIR /opt/esmf_build
+RUN git archive --remote=git://git.code.sf.net/p/esmf/esmf --format=tar --prefix=esmf_source/ $ESMF_TAG | tar xf -
+WORKDIR /opt/esmf_build/esmf_source
+
+# set environment variables for ESMF
+ENV ESMF_DIR=/opt/esmf_build/esmf_source
+ENV ESMF_INSTALL_PREFIX=/opt/esmf_build/esmf_install
+ENV ESMF_NETCDF="split"
+ENV ESMF_NETCDF_INCLUDE=$NETCDF_PREFIX/include
+ENV ESMF_NETCDF_LIBPATH=$NETCDF_PREFIX/lib
+ENV ESMF_COMM=mpich3
+ENV ESMF_COMPILER=gfortran
+
+# build ESMF
+RUN make info 2>&1 | tee esmf-make-info.out
+RUN make 2>&1 | tee esmf-make.out
+#RUN make check 2>&1 | tee esmf-make-check.out
+RUN make install 2>&1 | tee esmf-make-install.out
+
+# build ESMPy
+WORKDIR $ESMF_DIR/src/addon/ESMPy
+RUN ESMFMKFILE="$(find $ESMF_INSTALL_PREFIX -name '*esmf.mk')" \
+    && echo "ESMFMKFILE=$ESMFMKFILE" \
+    && /databricks/python3/bin/pip install numpy nose \
+    && /databricks/python3/bin/python3 setup.py build --ESMFMKFILE=${ESMFMKFILE} \
+    && /databricks/python3/bin/python3 setup.py test \
+    && /databricks/python3/bin/python3 setup.py install \
+    && /databricks/python3/bin/python3 -c "import ESMF; print(ESMF.__file__, ESMF.__version__)"
 
 # These python libraries are used by Databricks notebooks and the Python REPL
 # You do not need to install pyspark - it is injected when the cluster is launched
@@ -18,11 +58,23 @@ RUN /databricks/python3/bin/pip install \
   six==1.15.0 \
   # downgrade ipython to maintain backwards compatibility with 7.x and 8.x runtimes
   ipython==7.4.0 \
-  numpy==1.19.2 \
-  pandas==1.2.4 \
-  pyarrow==4.0.0 \
-  matplotlib==3.4.2 \
-  jinja2==2.11.3
+  pandas \
+  pyarrow \
+  matplotlib \
+  jinja2 \
+  "dask[complete]" \
+  cfgrib \
+  netCDF4 \
+  "xarray[complete]" \
+  zarr \
+  rioxarray \
+  prefect \
+  bokeh \
+  hvplot \
+  pangeo-forge-recipes \
+  geopandas \
+  scipy \
+  git+https://github.com/pangeo-data/xesmf.git
 
 # Specifies where Spark will look for the python process
 ENV PYSPARK_PYTHON=/databricks/python3/bin/python3
