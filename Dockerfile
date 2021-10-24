@@ -22,7 +22,7 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Initialize the default environment that Spark and notebooks will use
-RUN virtualenv -p python3.8 --system-site-packages /databricks/python3
+RUN virtualenv -p python3.8 /databricks/python3
 
 # Get ESMF source code
 WORKDIR /opt/esmf_build
