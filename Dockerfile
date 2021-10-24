@@ -45,6 +45,7 @@ RUN make install 2>&1 | tee esmf-make-install.out
 WORKDIR $ESMF_DIR/src/addon/ESMPy
 RUN ESMFMKFILE="$(find $ESMF_INSTALL_PREFIX -name '*esmf.mk')" \
     && echo "ESMFMKFILE=$ESMFMKFILE" \
+    && source /databricks/python3/bin/activate \
     && /databricks/python3/bin/pip install numpy nose \
     && /databricks/python3/bin/python3 setup.py build --ESMFMKFILE=${ESMFMKFILE} \
     && /databricks/python3/bin/python3 setup.py test \
