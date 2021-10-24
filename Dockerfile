@@ -43,6 +43,8 @@ RUN make install 2>&1 | tee esmf-make-install.out
 
 # build ESMPy
 WORKDIR $ESMF_DIR/src/addon/ESMPy
+ENV VIRTUAL_ENV=/databricks/python3
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN ESMFMKFILE="$(find $ESMF_INSTALL_PREFIX -name '*esmf.mk')" \
     && echo "ESMFMKFILE=$ESMFMKFILE" \
     && /databricks/python3/bin/pip install numpy nose --upgrade \
