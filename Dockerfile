@@ -62,7 +62,7 @@ RUN ESMFMKFILE="$(find $ESMF_INSTALL_PREFIX -name '*esmf.mk')" \
     && /databricks/python3/bin/pip install --ignore-installed \
   six==1.15.0 \
   # downgrade ipython to maintain backwards compatibility with 7.x and 8.x runtimes
-  ipython==7.4.0 \
+  ipython \
   numpy \
   pandas \
   pyarrow \
@@ -76,6 +76,7 @@ RUN ESMFMKFILE="$(find $ESMF_INSTALL_PREFIX -name '*esmf.mk')" \
   rioxarray \
   prefect \
   bokeh \
+  ipykernel \
   hvplot \
   pangeo-forge-recipes \
   geopandas \
