@@ -53,6 +53,7 @@ ENV VIRTUAL_ENV=/databricks/python3
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN ESMFMKFILE="$(find $ESMF_INSTALL_PREFIX -name '*esmf.mk')" \
     && echo "ESMFMKFILE=$ESMFMKFILE" \
+    && . /databricks/python3/bin/activate \
     && /databricks/python3/bin/pip install numpy nose --ignore-installed \
     && /databricks/python3/bin/python3 setup.py build --ESMFMKFILE=${ESMFMKFILE} \
     && /databricks/python3/bin/python3 setup.py test \
