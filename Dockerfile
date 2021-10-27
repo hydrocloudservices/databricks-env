@@ -22,7 +22,7 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Initialize the default environment that Spark and notebooks will use
-RUN virtualenv -p python3.8 /databricks/python3
+RUN virtualenv -p python3.8 /databricks/python
 
 # Get ESMF source code
 WORKDIR /opt/esmf_build
@@ -49,17 +49,17 @@ RUN make install 2>&1 | tee esmf-make-install.out
 # You do not need to install pyspark - it is injected when the cluster is launched
 # Versions are intended to reflect DBR 9.0
 WORKDIR $ESMF_DIR/src/addon/ESMPy
-ENV VIRTUAL_ENV=/databricks/python3
+ENV VIRTUAL_ENV=/databricks/python
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN ESMFMKFILE="$(find $ESMF_INSTALL_PREFIX -name '*esmf.mk')" \
     && echo "ESMFMKFILE=$ESMFMKFILE" \
-    && . /databricks/python3/bin/activate \
-    && /databricks/python3/bin/pip install numpy nose --ignore-installed \
-    && /databricks/python3/bin/python3 setup.py build --ESMFMKFILE=${ESMFMKFILE} \
-    && /databricks/python3/bin/python3 setup.py test \
-    && /databricks/python3/bin/python3 setup.py install \
-    && /databricks/python3/bin/python3 -c "import ESMF; print(ESMF.__file__, ESMF.__version__)" \
-    && /databricks/python3/bin/pip install --ignore-installed \
+    && . /databricks/python/bin/activate \
+    && /databricks/python/bin/pip install numpy nose --ignore-installed \
+    && /databricks/python/bin/python setup.py build --ESMFMKFILE=${ESMFMKFILE} \
+    && /databricks/python/bin/python setup.py test \
+    && /databricks/python/bin/python setup.py install \
+    && /databricks/python/bin/python -c "import ESMF; print(ESMF.__file__, ESMF.__version__)" \
+    && /databricks/python/bin/pip install --ignore-installed \
   six==1.15.0 \
   # downgrade ipython to maintain backwards compatibility with 7.x and 8.x runtimes
   ipython \
@@ -68,7 +68,6 @@ RUN ESMFMKFILE="$(find $ESMF_INSTALL_PREFIX -name '*esmf.mk')" \
   pyarrow \
   matplotlib \
   jinja2 \
-  "dask[complete]" \
   cfgrib \
   netCDF4 \
   "xarray[complete]" \
@@ -85,11 +84,11 @@ RUN ESMFMKFILE="$(find $ESMF_INSTALL_PREFIX -name '*esmf.mk')" \
   s3fs \
   gcsfs \
   fsspec \
-  && /databricks/python3/bin/pip install --no-dependencies \
+  && /databricks/python/bin/pip install --no-dependencies \
   pangeo-xesmf
   
 # Specifies where Spark will look for the python process
-ENV PYSPARK_PYTHON=/databricks/python3/bin/python3
+ENV PYSPARK_PYTHON=/databricks/python/bin/python
 
 RUN apt-get update \
   && apt-get install -y fuse \
